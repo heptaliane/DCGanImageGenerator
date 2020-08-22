@@ -52,7 +52,8 @@ class PixivDownloader():
         illusts = self._app.illust_detail(illust_id).illust
         if illusts.page_count == 1:
             url = illusts.meta_single_page.original_image_url
-            self._app.download(url, '%s_000.jpg' % illust_id, path=self._dst_dir)
+            self._app.download(url, name='%s_000.jpg' % illust_id,
+                               path=self._dst_dir)
         else:
             for i, page in enumerate(illusts.meta_pages):
                 url = page.image_urls.original

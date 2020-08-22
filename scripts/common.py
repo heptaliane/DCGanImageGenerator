@@ -6,11 +6,11 @@ import base64
 
 
 def get_filenames(parent_dir, ext='.jpg', rm_ext=False):
-    paths = glob.glob(os.path.join(parent_dir, '*.%s' % ext))
+    paths = glob.glob(os.path.join(parent_dir, '*%s' % ext))
     if rm_ext:
         paths = [os.path.splitext(path)[0] for path in paths]
 
-    return [os.path.basename(path) for path in paths]
+    return sorted([os.path.basename(path) for path in paths])
 
 
 def read_json(path):
