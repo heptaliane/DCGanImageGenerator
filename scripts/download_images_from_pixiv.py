@@ -19,7 +19,9 @@ logger.addHandler(StreamHandler())
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--out_dir', '--out', '-o', default='data/orginal',
-                        help='Path to output directory')
+                        help='Path to output base directory')
+    parser.add_argument('--save_as', default=None,
+                        help='Save images as a given label')
     parser.add_argument('--keyword', '--key', '-k', required=True,
                         help='Search image keyword')
     parser.add_argument('--auth_json', '--auth', '-a',
@@ -31,6 +33,8 @@ def parse_arguments(argv):
 
 
 class PixivDownloader():
+    _NAME_FORMAT = 'pixiv_%s_%03d.jpg'
+
     def __init__(self, dst_dir):
         self._app = pixivpy3.AppPixivAPI()
         self._api = pixivpy3.PixivAPI()
@@ -44,7 +48,8 @@ class PixivDownloader():
         self._is_auth = True
 
     def _download_images(self, illust_id):
-        if os.path.exists(os.path.join(self._dst_dir, '%s_000.jpg' % illust_id)):
+        if os.path.exists(os.path.join(self._dst_dir,
+                                       self._NAME_FORMAT % (illust_id, 0))):
             logger.info('"%s" exists... Skip', illust_id)
             return
 
@@ -52,12 +57,13 @@ class PixivDownloader():
         illusts = self._app.illust_detail(illust_id).illust
         if illusts.page_count == 1:
             url = illusts.meta_single_page.original_image_url
-            self._app.download(url, name='%s_000.jpg' % illust_id,
+            self._app.download(url, name=self._NAME_FORMAT % (illust_id, 0),
                                path=self._dst_dir)
         else:
             for i, page in enumerate(illusts.meta_pages):
                 url = page.image_urls.original
-                self._app.download(url, name='%s_%03d.jpg' % (illust_id, i),
+                self._app.download(url,
+                                   name=self._NAME_FORMAT % (illust_id, i),
                                    path=self._dst_dir)
 
     def __call__(self, word):
@@ -71,13 +77,17 @@ class PixivDownloader():
                 break
 
             for res in data.response:
-                self._download_images(res.id)
+                if res.stats.scored_count > 1000:
+                    self._download_images(res.id)
 
 
 def main(argv):
     args = parse_arguments(argv)
 
-    out_dir = os.path.join(args.out_dir, base64_encode(args.keyword))
+    if args.save_as is None:
+        out_dir = os.path.join(args.out_dir, base64_encode(args.keyword))
+    else:
+        out_dir = os.path.join(args.out_dir, base64_encode(args.save_as))
     downloader = PixivDownloader(out_dir)
 
     auth = read_json(args.auth_json)

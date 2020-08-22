@@ -7,7 +7,7 @@ import enum
 
 import cv2
 
-from common import get_filenames
+from common import get_filenames, read_json, write_json
 
 
 class KeyStatus(enum.IntEnum):
@@ -15,6 +15,7 @@ class KeyStatus(enum.IntEnum):
     UNDO = 117
     OK = 106
     FAIL = 102
+    REMOVE = 100
 
 
 def parse_arguments(argv):
@@ -53,18 +54,23 @@ def main(argv):
     invalid_dir = os.path.join(args.output_dir, dirname, 'invalid')
     os.makedirs(valid_dir, exist_ok=True)
     os.makedirs(invalid_dir, exist_ok=True)
+    removed_json = os.path.join(args.output_dir, dirname, '.cache.json')
 
     names = get_filenames(args.input_dir)
     valid_names = get_filenames(valid_dir)
     invalid_names = get_filenames(invalid_dir)
-    names = sorted(set(names) - set(valid_names) - set(invalid_names))
+    removed_names = read_json(removed_json)
+    removed_names = [] if removed_names is None else removed_names
+    names = sorted(set(names) - set(valid_names) - set(invalid_names)
+                   - set(removed_names))
 
     # Instruction
     sys.stdout.write(
-        'Key input instructions:\n' + \
-        'j: Accept current image\n' + \
-        'k: Reject current image\n' + \
-        'u: Undo recent validation\n' + \
+        'Key input instructions:\n'
+        'j: Accept current image\n'
+        'k: Reject current image\n'
+        'u: Undo recent validation\n'
+        'd: Exclude image \n'
         'q: Quit validation\n'
     )
 
@@ -84,6 +90,10 @@ def main(argv):
             i += 1
         elif key == KeyStatus.FAIL:
             shutil.copyfile(path, os.path.join(invalid_dir, names[i]))
+            i += 1
+        elif key == KeyStatus.REMOVE:
+            removed_names.append(names[i])
+            write_json(removed_json, removed_names)
             i += 1
         else:
             exit()

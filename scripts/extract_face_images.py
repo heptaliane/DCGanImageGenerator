@@ -7,7 +7,7 @@ import argparse
 import cv2
 from urllib import request
 
-from common import get_filenames
+from common import get_filenames, read_json, write_json
 
 # Logging
 from logging import getLogger, StreamHandler, INFO
@@ -20,7 +20,8 @@ def parse_arguments(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--input_dir', '--input', '-i', required=True,
                         help='Path to input image directory')
-    parser.add_argument('--output_dir', '--out', '-o', default='data/extracted',
+    parser.add_argument('--output_dir', '--out', '-o',
+                        default='data/extracted',
                         help='Path to output image directory')
     parser.add_argument('--img_size', '-s', type=int, default=200,
                         help='Extracted image size (defualt = 200 px)')
@@ -51,6 +52,8 @@ class AnimeFaceDetector():
 
 
 class AnimeFaceExtractor():
+    _CACHE_FILENAME = '.rect.json'
+
     def __init__(self, cascade_path, dst_dir,
                  image_size=200, margin=0.2, max_scale=1.2):
         min_size = int(image_size / (1.0 + margin) / max_scale)
@@ -58,21 +61,28 @@ class AnimeFaceExtractor():
         self.dst_dir = dst_dir
         os.makedirs(self.dst_dir, exist_ok=True)
         self._image_size = (image_size, image_size)
-        self._index = 0
         self._margin = margin
+        rects = read_json(os.path.join(dst_dir, self._CACHE_FILENAME))
+        self._rects = dict() if rects is None else rects
 
-    def _save_extract_face(self, extracted):
+    def _save_extract_face(self, extracted, filename):
         extracted = cv2.resize(extracted, self._image_size)
-        dstpath = os.path.join(self.dst_dir, '%05d.jpg' % self._index)
+        dstpath = os.path.join(self.dst_dir, filename)
         cv2.imwrite(dstpath, extracted)
-        self._index += 1
 
     def __call__(self, src_path):
+        basename = os.path.splitext(os.path.basename(src_path))[0]
+        filename = '%s_%s.jpg' % (basename, '%02d')
+        if basename in self._rects:
+            logger.info('"%s" exists... Skip', basename)
+            return
+
         img = cv2.imread(src_path, cv2.IMREAD_COLOR)
         rects = self._detector(img)
+        self._rects[basename] = list()
 
         src_h, src_w = img.shape[:2]
-        for (x, y, w, h) in rects:
+        for i, (x, y, w, h) in enumerate(rects):
             cnt_x, cnt_y = x + w // 2, y + h // 2
             cnt_d = int(max(w, h) * (1.0 + self._margin) * 0.5)
             x0, y0 = max(cnt_x - cnt_d, 0), max(cnt_y - cnt_d, 0)
@@ -98,7 +108,11 @@ class AnimeFaceExtractor():
                 x0 = cnt_x - l // 2
                 x1 = x0 + l
 
-            self._save_extract_face(img[y0:y1, x0:x1, :])
+            self._save_extract_face(img[y0:y1, x0:x1, :],
+                                    filename % i)
+            self._rects[basename].append([int(x0), int(x1), int(y0), int(y1)])
+        write_json(os.path.join(self.dst_dir, self._CACHE_FILENAME),
+                   self._rects)
 
 
 def main(argv):
@@ -111,7 +125,7 @@ def main(argv):
                                    image_size=args.img_size)
 
     names = get_filenames(args.input_dir)
-    for name in names:
+    for name in names[::-1]:
         logger.info('Extract face from "%s"', name)
         extractor(os.path.join(args.input_dir, name))
 
