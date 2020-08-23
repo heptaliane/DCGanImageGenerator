@@ -78,6 +78,9 @@ class AnimeFaceExtractor():
             return
 
         img = cv2.imread(src_path, cv2.IMREAD_COLOR)
+        if img is None:
+            logger.error('Failed to load image "%s"', src_path)
+            return
         rects = self._detector(img)
         self._rects[basename] = list()
 
