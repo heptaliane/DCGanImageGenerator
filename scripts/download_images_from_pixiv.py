@@ -91,20 +91,21 @@ def main(argv):
     downloader = PixivDownloader(out_dir)
 
     auth = read_json(args.auth_json)
+    auth = dict() if auth is None else auth
     while True:
-        if auth is None:
-            auth = {
+        if 'pixiv' not in auth:
+            auth['pixiv'] = {
                 'username': input('Username >> '),
                 'password': getpass('Password >> '),
             }
 
         try:
-            downloader.authenticate(**auth)
+            downloader.authenticate(**auth['pixiv'])
             write_json(args.auth_json, auth)
             break
         except pixivpy3.PixivError:
             logger.error('Failed to login.')
-            auth = None
+            del auth['pixiv']
 
     downloader(args.keyword)
 

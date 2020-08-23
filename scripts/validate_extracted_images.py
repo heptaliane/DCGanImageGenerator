@@ -83,8 +83,10 @@ def main(argv):
             i -= 1
             if os.path.exists(os.path.join(valid_dir, names[i])):
                 os.remove(os.path.join(valid_dir, names[i]))
-            else:
+            elif os.path.exists(os.path.join(invalid_dir, names[i])):
                 os.remove(os.path.join(invalid_dir, names[i]))
+            else:
+                removed_names.pop()
         elif key == KeyStatus.OK:
             shutil.copyfile(path, os.path.join(valid_dir, names[i]))
             i += 1
