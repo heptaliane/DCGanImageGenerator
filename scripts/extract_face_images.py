@@ -100,13 +100,13 @@ class AnimeFaceExtractor():
                     y1 = min(y0 + cnt_d * 2, src_h)
 
             if x1 - x0 < cnt_d * 2 and x1 - x0 < y1 - y0:
-                l = x1 - x0
-                y0 = cnt_y - l // 2
-                y1 = y0 + l
+                new_d = x1 - x0
+                y0 = cnt_y - new_d // 2
+                y1 = y0 + new_d
             elif y1 - y0 < cnt_d * 2 and x1 - x0 > y1 - y0:
-                l = y1 - y0
-                x0 = cnt_x - l // 2
-                x1 = x0 + l
+                new_d = y1 - y0
+                x0 = cnt_x - new_d // 2
+                x1 = x0 + new_d
 
             self._save_extract_face(img[y0:y1, x0:x1, :],
                                     filename % i)
