@@ -81,8 +81,12 @@ class NiconicoDownloader():
         if os.path.exists(dst_path):
             logger.info('"%s" exists... Skip', illust_id)
             return
+        logger.info('Download "%s"..', illust_id)
 
-        url = 'https://seiga.nicovideo.jp/image/source/%s' % illust_id
+        viewer_url = 'https://seiga.nicovideo.jp/image/source/%s' % illust_id
+        self._driver.get(viewer_url)
+        url = self._driver.find_elements_by_tag_name('img')[-1].\
+            get_attribute('src')
         try:
             with request.urlopen(url) as img:
                 with open(dst_path, 'wb') as f:
@@ -110,7 +114,6 @@ class NiconicoDownloader():
         i = 1
         while True:
             illusts = self._search_illusts(search_word, i)
-            print(illusts)
             if len(illusts) == 0:
                 break
 
