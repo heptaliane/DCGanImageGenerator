@@ -33,4 +33,8 @@ class LoopDataset(IterableDataset):
             name = next(self._iter)
 
         path = self._directory.name_to_path(name)
-        return self._loader(path)
+        data = self._loader(path)
+        if self.transform is not None:
+            data = self.transform(data)
+
+        return data
