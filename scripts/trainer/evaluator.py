@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
 
+import math
+
+import numpy as np
+from PIL import Image
 import torch
+from torchvision.transforms import ToPILImage
 
 # Logging
 from logging import getLogger, NullHandler
@@ -36,3 +41,38 @@ class SnapshotWriter():
 
     def update(self, trainer):
         torch.save(trainer.state_dict(), self._dst_path)
+
+
+class ImageEvaluator():
+    def __init__(self, save_dir, interval=0):
+        self.save_dir = save_dir
+        self.interval = interval
+        self.tensor_to_image = ToPILImage()
+
+    def _create_thumbnail(self, batches, dst_path):
+        n, c, h, w = batches.size[0]
+        n_rows = math.ceil(math.sqrt(batch_size))
+        n_cols = math.ceil(batch_size / n_rows)
+        thumb = np.zeros((h * n_rows, w * n_cols, c), dtype=np.uint8)
+
+        for i in range(n):
+            img = np.asarray(self.tensor_to_image(batches[i]))
+            nx, ny = i % n_cols, math.floor(i / n_rows)
+            thumb[ny * h: (ny + 1) * h, nx * w: (nx + 1) * w, :] = img
+
+        thumb = Image.fromarray(thumb)
+        thumb.save(dst_path)
+
+    def __call__(self, preds, epoch):
+        if self.interval <= 0:
+            dst_dir = os.path.join(self.save_dir, 'test_result_latest')
+        elif epoch % self.interval == 0:
+            dst_dir = os.path.join(self.save_dir,
+                                   'test_result_epoch%04d' % epoch)
+        else:
+            return
+        os.makedirs(dst_dir, exist_ok=True)
+
+        for i, pred in enumerate(preds):
+            filename = 'test_result_idx_%03d.jpg' % i
+            self._create_thumbnail(pred, os.path.join(dst_dir, filename))

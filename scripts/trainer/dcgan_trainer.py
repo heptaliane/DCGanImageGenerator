@@ -122,7 +122,7 @@ class DCGanTrainer():
         if train:
             return loss
         else:
-            return loss, fake.detach().to('cpu')
+            return loss, fake.detach().cpu()
 
     def _train_step(self, n_train):
         self.generator.train()
