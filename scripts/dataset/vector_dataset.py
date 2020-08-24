@@ -19,7 +19,8 @@ class VectorDataset(IterableDataset):
         # If default seed (= None) is used, random vector will be generated
         np.random.seed(self._seed)
 
-        vec = [np.random.random((1, self._dim)) for _ in range(self._length)]
+        vec = [np.random.random((1, self._dim, 1, 1))
+               for _ in range(self._length)]
         self._iter = iter(vec)
 
     def __iter__(self):
