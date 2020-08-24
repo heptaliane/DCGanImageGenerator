@@ -105,7 +105,8 @@ class DCGanTrainer():
         if self.gen_optimizer is not None:
             # Forward generator
             self.generator.zero_grad()
-            fake = self.generator.forward(inp['generator'])
+            if self.dis_optimizer is None:
+                fake = self.generator.forward(inp['generator'])
             judge = self.discriminator.forward(fake)
             fake_label = torch.full_like(judge, 0.0,
                                          dtype=torch.float64,
