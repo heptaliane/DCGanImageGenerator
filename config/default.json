@@ -1,0 +1,39 @@
+{
+  "dataset": {
+    "train": {
+      "dirname": "data/train",
+      "ext": ".jpg"
+    },
+    "test": {
+      "dirname": "data/train",
+      "ext": ".jpg"
+    }
+  },
+  "loader": {
+    "batch_size": 4,
+    "num_workers": 6,
+    "pin_memory": true,
+    "drop_last": true
+  },
+  "model": {
+    "in_ch": 100,
+    "out_ch": 3,
+    "depth": 4,
+    "detach": -1
+  },
+  "optimizer": {
+    "generator": {
+      "lr": 1e-4
+    },
+    "discriminator": {
+      "lr": 1e-4
+    }
+  },
+  "evaluator_interval": {
+    "image": 1,
+    "snapshot": 10
+  },
+  "iteraion_per_epoch": 1000,
+  "seed": 1234,
+  "img_size": [200, 200]
+}
