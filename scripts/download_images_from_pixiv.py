@@ -83,14 +83,14 @@ class PixivDownloader():
                                    name=self._NAME_FORMAT % (illust_id, i),
                                    path=self._dst_dir)
 
-    def _filter_illusts(self, res, user_id):
+    def _filter_illusts(self, res, keyword):
         if res.stats.scored_count < self.th_favorite:
             return False
         if not self.allow_r18 and res.sanity_level != 'white':
             return False
         if not self.allow_manga and res.type == 'manga':
             return False
-        return user_id is None or res.user_id != user_id
+        return keyword is None or keyword in res.tags
 
     def __call__(self, keyword=None, user_id=None):
         if not self._is_auth:
@@ -98,18 +98,16 @@ class PixivDownloader():
             return
 
         for i in range(1, 1000):
-            if keyword is not None:
-                data = self._api.search_works(word, mode='tag', page=i)
-            elif user_id is not None:
+            if user_id is not None:
                 data = self._api.users_works(user_id, page=i)
+            elif keyword is not None:
+                data = self._api.search_works(word, mode='tag', page=i)
 
             if data.status != 'success':
                 break
-            if i == 1:
-                print(data.response[0].keys())
 
             for res in data.response:
-                if self._filter_illusts(res, user_id):
+                if self._filter_illusts(res, keyword):
                     self._download_images(res.id)
 
 
