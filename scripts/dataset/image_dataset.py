@@ -6,7 +6,7 @@ from .common import DatasetDirectory
 from .loop_dataset import LoopDataset
 
 
-def create_face_dataset(src_dir, train=False, img_size=(200, 200), ext='.jpg'):
+def create_image_dataset(src_dir, train=False, img_size=(200, 200), ext='.jpg'):
     directory = DatasetDirectory(src_dir, ext)
 
     transform = [transforms.Resize(img_size)]
