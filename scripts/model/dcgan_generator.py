@@ -2,13 +2,13 @@
 import torch.nn as nn
 
 
-class DCGanConv(nn.Module):
+class DCGanGeneratorConv(nn.Module):
     def __init__(self, in_ch, out_ch, kernel, stride, padding):
         super().__init__()
         self.conv = nn.ConvTranspose2d(in_ch, out_ch, kernel, stride, padding,
                                        bias=False)
         self.bn = nn.BatchNorm2d(out_ch)
-        self.relu = nn.LeakyReLU(0.1, True)
+        self.relu = nn.ReLU(True)
 
     def forward(self, x):
         x = self.conv(x)
@@ -24,11 +24,11 @@ class DCGanGenerator(nn.Module):
         feature = 1024
 
         layers = list()
-        layers.append(DCGanConv(in_ch, feature, 4, 1, 0))
+        layers.append(DCGanGeneratorConv(in_ch, feature, 4, 1, 0))
 
         for _ in range(1, depth):
             feature = feature // 2
-            layers.append(DCGanConv(feature * 2, feature, 4, 2, 1))
+            layers.append(DCGanGeneratorConv(feature * 2, feature, 4, 2, 1))
 
         self.layers = nn.Sequential(*layers)
         self.pred = nn.Sequential(
