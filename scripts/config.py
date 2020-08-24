@@ -29,18 +29,18 @@ def merge_config(conf1, conf2):
     def merge_dict(d1, d2):
         for key in d1.keys():
             if key in d2:
-                if isinstance(d1[key], list):
+                if isinstance(d2[key], list):
                     d1[key] = merge_list(d1[key], d2[key])
-                elif isinstance(d1[key], dict):
+                elif isinstance(d2[key], dict):
                     merge_dict(d1[key], d2[key])
                 else:
                     d1[key] = d2[key]
 
     def merge_list(l1, l2):
         for i in range(min(len(l1), len(l2))):
-            if isinstance(l1[i], dict):
+            if isinstance(l2[i], dict):
                 merge_dict(l1[i], l2[i])
-            elif isinstance(l1[i], list):
+            elif isinstance(l2[i], list):
                 merge_list(l1[i], l2[i])
             else:
                 l1[i] = l2[i]
