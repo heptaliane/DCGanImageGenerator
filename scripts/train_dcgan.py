@@ -44,11 +44,13 @@ def setup_dataset(config, label):
     assert os.path.exists(train_dir)
     assert os.path.exists(test_dir)
 
+    img_size = 4 * 2 ** config['model']['depth']
+
     train_dataset = DCGanDataset(train_dir, train=True,
-                                 img_size=config['img_size'],
+                                 img_size=(img_size, img_size),
                                  ext=config['dataset']['train']['ext'],
                                  dimension=config['model']['in_ch'])
-    test_dataset = DCGanDataset(test_dir, img_size=config['img_size'],
+    test_dataset = DCGanDataset(test_dir, img_size=(img_size, img_size),
                                 ext=config['dataset']['test']['ext'],
                                 dimension=config['model']['in_ch'],
                                 seed=config['seed'])
