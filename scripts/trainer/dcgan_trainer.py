@@ -145,8 +145,8 @@ class DCGanTrainer():
 
         preds = list()
         avg_loss = {k: 0 for k in self._loss_keys}
-        n_test = len(self.test_iter._dataset) // self.batch_size
-        for _ in tqdm(range(n_test)):
+        n_test = len(self.test_iter._dataset)
+        for _ in tqdm(range(n_test // self.batch_size)):
             data = next(self.train_iter)
             loss, pred = self._forward(data, train=False)
             preds.append(pred)
@@ -165,7 +165,7 @@ class DCGanTrainer():
             self.dis_model_writer.update(avg_loss['dis_loss'],
                                          self.discriminator)
         if self.epoch % self.snapshot_interval == 0:
-            self.snapshot_writer(self)
+            self.snapshot_writer.update(self)
 
     def run(self, n_train, max_epoch=-1):
         while True:

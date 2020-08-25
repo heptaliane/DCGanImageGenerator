@@ -10,7 +10,7 @@
     }
   },
   "loader": {
-    "batch_size": 16,
+    "batch_size": 8,
     "num_workers": 10,
     "pin_memory": true,
     "drop_last": true
@@ -19,7 +19,11 @@
     "in_ch": 100,
     "out_ch": 3,
     "depth": 4,
-    "detach": -1
+    "detach": -1,
+    "pretrained": {
+      "generator": null,
+      "discriminator": null
+    }
   },
   "optimizer": {
     "generator": {

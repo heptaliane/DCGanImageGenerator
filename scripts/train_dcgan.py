@@ -9,8 +9,9 @@ from torch.utils.data import DataLoader
 from torch.optim import Adam
 
 from config import load_config
+from common import write_json
 from dataset import DCGanDataset
-from model import DCGanGenerator, DCGanDiscriminator
+from model import DCGanGenerator, DCGanDiscriminator, load_pretrained_model
 from trainer import DCGanTrainer, ImageEvaluator
 
 
@@ -69,6 +70,13 @@ def setup_model(config):
     generator = DCGanGenerator(in_ch, out_ch, depth=depth, detach=detach)
     discriminator = DCGanDiscriminator(out_ch, depth=depth, detach=detach)
 
+    if config['model']['pretrained']['generator'] is None:
+        load_pretrained_model(generator,
+                              config['model']['pretrained']['generator'])
+    if config['model']['pretrained']['discriminator'] is None:
+        load_pretrained_model(discriminator,
+                              config['model']['pretrained']['discriminator'])
+
     if config['optimizer']['generator'] is not None:
         gen_optimizer = Adam(generator.parameters(),
                              **config['optimizer']['generator'])
@@ -110,6 +118,8 @@ def main(argv):
     ctime = time.strftime('%y%m%d_%H%M')
     dst_dir = os.path.join(args.output_dir, '%s_%s' % (ctime, args.label))
     os.makedirs(dst_dir, exist_ok=True)
+
+    write_json(os.path.join(dst_dir, 'config.json'), config)
 
     trainer = setup_trainer(config, dst_dir, args.gpu, datasets, models)
     trainer.run(config['iteraion_per_epoch'], args.max_epoch)
