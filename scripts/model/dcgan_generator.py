@@ -21,7 +21,7 @@ class DCGanGenerator(nn.Module):
         super().__init__()
 
         self.detach = detach
-        feature = 1024
+        feature = 512
 
         layers = list()
         layers.append(DCGanGeneratorConv(in_ch, feature, 4, 1, 0))
@@ -33,7 +33,7 @@ class DCGanGenerator(nn.Module):
         self.layers = nn.Sequential(*layers)
         self.pred = nn.Sequential(
             nn.ConvTranspose2d(feature, out_ch, 4, 2, 1, bias=False),
-            nn.Sigmoid()
+            nn.Tanh()
         )
 
     def forward(self, x):

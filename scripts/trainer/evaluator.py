@@ -25,7 +25,7 @@ class BestModelWriter():
         self._loss = state['loss']
 
     def state_dict(self):
-        return dict(self._loss)
+        return dict(loss=self._loss)
 
     def update(self, loss, model):
         if self._loss > loss:
@@ -49,6 +49,11 @@ class ImageEvaluator():
         self.interval = interval
         self.tensor_to_image = ToPILImage()
 
+    def _normalize_input(self, tensor):
+        tmin, tmax = float(tensor.min()), float(tensor.max())
+        tensor.clamp_(min=tmin, max=tmax)
+        return tensor.add_(-tmin).div(tmax - tmin + 1e-5)
+
     def _create_thumbnail(self, batches, dst_path):
         n, c, h, w = batches.size()
         n_rows = math.ceil(math.sqrt(n))
@@ -56,7 +61,8 @@ class ImageEvaluator():
         thumb = np.zeros((h * n_rows, w * n_cols, c), dtype=np.uint8)
 
         for i in range(n):
-            img = np.asarray(self.tensor_to_image(batches[i]))
+            pred = self._normalize_input(batches[i])
+            img = np.asarray(self.tensor_to_image(pred))
             nx, ny = i % n_cols, math.floor(i / n_rows)
             thumb[ny * h: (ny + 1) * h, nx * w: (nx + 1) * w, :] = img
 

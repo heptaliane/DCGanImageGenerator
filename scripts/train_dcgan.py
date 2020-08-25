@@ -70,10 +70,10 @@ def setup_model(config):
     generator = DCGanGenerator(in_ch, out_ch, depth=depth, detach=detach)
     discriminator = DCGanDiscriminator(out_ch, depth=depth, detach=detach)
 
-    if config['model']['pretrained']['generator'] is None:
+    if config['model']['pretrained']['generator'] is not None:
         load_pretrained_model(generator,
                               config['model']['pretrained']['generator'])
-    if config['model']['pretrained']['discriminator'] is None:
+    if config['model']['pretrained']['discriminator'] is not None:
         load_pretrained_model(discriminator,
                               config['model']['pretrained']['discriminator'])
 

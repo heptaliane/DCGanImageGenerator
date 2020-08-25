@@ -21,15 +21,16 @@ class DCGanDiscriminator(nn.Module):
     def __init__(self, in_ch, depth=4, detach=-1):
         super().__init__()
 
-        feature = 1024 // 2 ** (depth - 1)
+        feature = 512 // 2 ** (depth - 1)
         self.detach = detach
 
-        self.layers = list()
-        self.layers.append(DCGanDiscriminatorConv(in_ch, feature, False))
+        layers = list()
+        layers.append(DCGanDiscriminatorConv(in_ch, feature, False))
         for _ in range(1, depth):
             feature *= 2
-            self.layers.append(DCGanDiscriminatorConv(feature // 2, feature))
+            layers.append(DCGanDiscriminatorConv(feature // 2, feature))
 
+        self.layers = nn.Sequential(*layers)
         self.pred = nn.Sequential(
             nn.Conv2d(feature, 1, 4, 1, 0, bias=False),
             nn.Sigmoid()

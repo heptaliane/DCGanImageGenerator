@@ -15,7 +15,7 @@ logger.addHandler(NullHandler())
 
 class DCGanTrainer():
     _STATE_KEYS = ('train_iter', 'test_iter', 'generator', 'discriminator',
-                   'gen_model_saver', 'dis_model_saver', 'epoch')
+                   'gen_model_writer', 'dis_model_writer', 'epoch')
 
     def __init__(self, save_dir, train_loader, test_loader,
                  generator, discriminator,
@@ -48,7 +48,7 @@ class DCGanTrainer():
             self._loss_keys.append('gen_loss')
         if self.dis_optimizer is not None:
             self._loss_keys.extend(['dis_loss',
-                                    'dis_real_loss', 'dis_fake_loss'])
+                                    'dis_judge_real', 'dis_judge_fake'])
 
     def state_dict(self):
         state = dict()
@@ -79,7 +79,7 @@ class DCGanTrainer():
                                          dtype=torch.float32,
                                          device=self.device)
             dis_real_loss = self.dis_loss(judge_real, real_label)
-            loss['dis_real_loss'] = dis_real_loss.mean().item()
+            loss['dis_judge_real'] = judge_real.mean().item()
 
             # Backward
             if train:
@@ -94,8 +94,8 @@ class DCGanTrainer():
                                          dtype=torch.float32,
                                          device=self.device)
             dis_fake_loss = self.dis_loss(judge_fake, fake_label)
-            loss['dis_fake_loss'] = dis_fake_loss.mean().item()
-            loss['dis_loss'] = loss['dis_real_loss'] + loss['dis_fake_loss']
+            loss['dis_judge_fake'] = judge_fake.mean().item()
+            loss['dis_loss'] = dis_fake_loss.item() + dis_real_loss.item()
 
             # Backward
             if train:
@@ -135,9 +135,10 @@ class DCGanTrainer():
             for k, v in loss.items():
                 avg_loss[k] += v
 
-        for k, v in avg_loss.items():
-            self.logger.add_scalar('train_%s' % k, v / n_train, self.epoch)
-            logger.info('train_%s: %f', k, v)
+        for k in avg_loss.keys():
+            avg_loss[k] = avg_loss[k] / n_train * self.batch_size
+            self.logger.add_scalar('train_%s' % k, avg_loss[k], self.epoch)
+            logger.info('train_%s: %f', k, avg_loss[k])
 
     def _test_step(self):
         self.generator.eval()
@@ -154,9 +155,10 @@ class DCGanTrainer():
                 avg_loss[k] += v
 
         self.evaluator(preds, self.epoch)
-        for k, v in avg_loss.items():
-            self.logger.add_scalar('test_%s' % k, v / n_test, self.epoch)
-            logger.info('test_%s: %f', k, v)
+        for k in avg_loss.keys():
+            avg_loss[k] = avg_loss[k] / n_test * self.batch_size
+            self.logger.add_scalar('test_%s' % k, avg_loss[k], self.epoch)
+            logger.info('test_%s: %f', k, avg_loss[k])
 
         if self.gen_optimizer is not None:
             self.gen_model_writer.update(avg_loss['gen_loss'],

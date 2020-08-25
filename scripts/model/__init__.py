@@ -15,7 +15,7 @@ logger.addHandler(NullHandler())
 def _reshape_state_dict(src, target):
     assert src.dim() == target.dim()
     for d in range(src.dim()):
-        chunk = torch.chunk(src, src.shape[d], dim=d)
+        chunk = list(torch.chunk(src, src.shape[d], dim=d))
         while len(chunk) < target.shape[d]:
             chunk.extend(chunk)
         src = torch.cat(chunk[:target.shape[d]], dim=d)
@@ -37,6 +37,6 @@ def load_pretrained_model(model, pretrained_path):
         elif src[k].shape == dst[k].shape:
             state[k] = src[k]
         else:
-            state[k] = _reshape_state_dict(src, dst)
+            state[k] = _reshape_state_dict(src[k], dst[k])
 
     model.load_state_dict(state)
