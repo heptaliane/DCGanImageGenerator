@@ -5,13 +5,13 @@
       "ext": ".jpg"
     },
     "test": {
-      "dirname": "data/train",
+      "dirname": "data/test",
       "ext": ".jpg"
     }
   },
   "loader": {
-    "batch_size": 4,
-    "num_workers": 6,
+    "batch_size": 16,
+    "num_workers": 10,
     "pin_memory": true,
     "drop_last": true
   },

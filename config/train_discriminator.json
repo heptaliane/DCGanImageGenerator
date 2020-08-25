@@ -1,0 +1,6 @@
+{
+  "inherit": "config/default.json",
+  "optimizer": {
+    "generator": null
+  }
+}

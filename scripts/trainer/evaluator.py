@@ -36,7 +36,7 @@ class BestModelWriter():
 
 class SnapshotWriter():
     def __init__(self, save_dir):
-        self._dst_path = os.path.join(self.save_dir, 'snapshot_latest.pth')
+        self._dst_path = os.path.join(save_dir, 'snapshot_latest.pth')
         os.makedirs(save_dir, exist_ok=True)
 
     def update(self, trainer):
@@ -50,9 +50,9 @@ class ImageEvaluator():
         self.tensor_to_image = ToPILImage()
 
     def _create_thumbnail(self, batches, dst_path):
-        n, c, h, w = batches.size[0]
-        n_rows = math.ceil(math.sqrt(batch_size))
-        n_cols = math.ceil(batch_size / n_rows)
+        n, c, h, w = batches.size()
+        n_rows = math.ceil(math.sqrt(n))
+        n_cols = math.ceil(n / n_rows)
         thumb = np.zeros((h * n_rows, w * n_cols, c), dtype=np.uint8)
 
         for i in range(n):

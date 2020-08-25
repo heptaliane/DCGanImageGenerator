@@ -11,12 +11,12 @@ def create_image_dataset(src_dir, train=False, img_size=(200, 200), ext='.jpg'):
 
     transform = [transforms.Resize(img_size)]
     if train:
-        transform.append(transforms.RandomHorizontalFilp())
+        transform.append(transforms.RandomHorizontalFlip())
         transform.append(transforms.RandomRotation(15.0, expand=True))
         transform.append(transforms.RandomResizedCrop(img_size,
                                                       scale=(0.7, 1.0),
                                                       ratio=(1.0, 1.0)))
-    transforms.append(transforms.ToTensor())
+    transform.append(transforms.ToTensor())
 
     transform = transforms.Compose(transform)
 

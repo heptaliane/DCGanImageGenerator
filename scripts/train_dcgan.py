@@ -8,10 +8,10 @@ import time
 from torch.utils.data import DataLoader
 from torch.optim import Adam
 
-from .config import load_config
-from .dataset import DCGanDataset
-from .model import DCGanGenerator, DCGanDiscriminator
-from .trainer import DCGanTrainer, ImageEvaluator
+from config import load_config
+from dataset import DCGanDataset
+from model import DCGanGenerator, DCGanDiscriminator
+from trainer import DCGanTrainer, ImageEvaluator
 
 
 # Logging
@@ -67,7 +67,7 @@ def setup_model(config):
     detach = config['model']['detach']
 
     generator = DCGanGenerator(in_ch, out_ch, depth=depth, detach=detach)
-    discriminator = DCGanDiscriminator(in_ch, depth=depth, detach=detach)
+    discriminator = DCGanDiscriminator(out_ch, depth=depth, detach=detach)
 
     if config['optimizer']['generator'] is not None:
         gen_optimizer = Adam(generator.parameters(),

@@ -19,7 +19,7 @@ class VectorDataset(IterableDataset):
         # If default seed (= None) is used, random vector will be generated
         np.random.seed(self._seed)
 
-        vec = [np.random.random((1, self._dim, 1, 1))
+        vec = [np.random.random((self._dim, 1, 1))
                for _ in range(self._length)]
         self._iter = iter(vec)
 
@@ -33,4 +33,4 @@ class VectorDataset(IterableDataset):
             self._reset_vector()
             vector = next(self._iter)
 
-        return torch.tensor(vector, dtype=torch.float64)
+        return torch.tensor(vector, dtype=torch.float32)

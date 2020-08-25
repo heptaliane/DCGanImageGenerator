@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .common import read_json
+from common import read_json
 
 
 def load_config(config_path):

@@ -4,10 +4,11 @@ import torch.nn as nn
 
 class DCGanDiscriminatorConv(nn.Module):
     def __init__(self, in_ch, out_ch, bn=True):
+        super().__init__()
         self.conv = nn.Conv2d(in_ch, out_ch, 4, 2, 1, bias=False)
         if bn:
             self.bn = nn.BatchNorm2d(out_ch)
-        self.relu = nn.LeakyRelu(0.2, inplace=True)
+        self.relu = nn.LeakyReLU(0.2, inplace=True)
 
     def forward(self, x):
         x = self.conv(x)

@@ -15,9 +15,8 @@ class LoopDataset(IterableDataset):
 
     def _reset_iter(self):
         if self._shuffle:
-            self._iter = iter(random.shuffle(self._names))
-        else:
-            self._iter = iter(self._names)
+            random.shuffle(self._names)
+        self._iter = iter(self._names)
 
     def __len__(self):
         return len(self._names)
