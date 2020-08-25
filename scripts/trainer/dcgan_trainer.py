@@ -108,10 +108,10 @@ class DCGanTrainer():
             if self.dis_optimizer is None:
                 fake = self.generator.forward(inp['generator'])
             judge = self.discriminator.forward(fake)
-            fake_label = torch.full_like(judge, 0.0,
+            real_label = torch.full_like(judge, 1.0,
                                          dtype=torch.float32,
                                          device=self.device)
-            gen_loss = self.dis_loss(judge, fake_label)
+            gen_loss = self.dis_loss(judge, real_label)
             loss['gen_loss'] = gen_loss.mean().item()
 
             # Backward
@@ -154,7 +154,6 @@ class DCGanTrainer():
             for k, v in loss.items():
                 avg_loss[k] += v
 
-        self.evaluator(preds, self.epoch)
         for k in avg_loss.keys():
             avg_loss[k] = avg_loss[k] / n_test * self.batch_size
             self.logger.add_scalar('test_%s' % k, avg_loss[k], self.epoch)
@@ -163,6 +162,7 @@ class DCGanTrainer():
         if self.gen_optimizer is not None:
             self.gen_model_writer.update(avg_loss['gen_loss'],
                                          self.generator)
+            self.evaluator(preds, self.epoch)
         if self.dis_optimizer is not None:
             self.dis_model_writer.update(avg_loss['dis_loss'],
                                          self.discriminator)
