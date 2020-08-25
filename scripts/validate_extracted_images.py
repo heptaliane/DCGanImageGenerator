@@ -25,16 +25,15 @@ def parse_arguments(argv):
     parser.add_argument('--output_dir', '--output', '--out', '-o',
                         default='data/validate',
                         help='Path to output base directory')
-    parser.add_argument('--scale', '-s', type=float, default=3.0,
+    parser.add_argument('--size', '-s', type=float, default=600,
                         help='Image preview scale')
     args = parser.parse_args()
     return args
 
 
-def show_image(src_path, scale=1.0):
+def show_image(src_path, size):
     img = cv2.imread(src_path, cv2.IMREAD_COLOR)
-    size = (int(img.shape[0] * scale), int(img.shape[1] * scale))
-    img = cv2.resize(img, size)
+    img = cv2.resize(img, (size, size))
 
     cv2.imshow('preview', img)
     while True:
@@ -77,7 +76,7 @@ def main(argv):
     i = 0
     while i < len(names):
         path = os.path.join(args.input_dir, names[i])
-        key = show_image(path, args.scale)
+        key = show_image(path, args.size)
 
         if key == KeyStatus.UNDO and i > 1:
             i -= 1

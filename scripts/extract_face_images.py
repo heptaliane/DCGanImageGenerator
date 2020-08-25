@@ -66,7 +66,7 @@ class AnimeFaceExtractor():
         self._rects = dict() if rects is None else rects
 
     def _save_extract_face(self, extracted, filename):
-        extracted = cv2.resize(extracted, self._image_size)
+        # extracted = cv2.resize(extracted, self._image_size)
         dstpath = os.path.join(self.dst_dir, filename)
         cv2.imwrite(dstpath, extracted)
 
@@ -84,6 +84,7 @@ class AnimeFaceExtractor():
         rects = self._detector(img)
         self._rects[basename] = list()
 
+        logger.info('Extract face from "%s"', basename)
         src_h, src_w = img.shape[:2]
         for i, (x, y, w, h) in enumerate(rects):
             cnt_x, cnt_y = x + w // 2, y + h // 2
@@ -128,8 +129,7 @@ def main(argv):
                                    image_size=args.img_size)
 
     names = get_filenames(args.input_dir)
-    for name in names[::-1]:
-        logger.info('Extract face from "%s"', name)
+    for name in names:
         extractor(os.path.join(args.input_dir, name))
 
 

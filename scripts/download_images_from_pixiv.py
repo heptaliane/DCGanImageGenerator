@@ -72,6 +72,8 @@ class PixivDownloader():
 
         logger.info('Download "%s"..', illust_id)
         illusts = self._app.illust_detail(illust_id).illust
+        if illusts is None:
+            logger.error('Cannot load image (%d)' % illust_id)
         if illusts.page_count == 1:
             url = illusts.meta_single_page.original_image_url
             self._app.download(url, name=self._NAME_FORMAT % (illust_id, 0),
@@ -101,7 +103,7 @@ class PixivDownloader():
             if user_id is not None:
                 data = self._api.users_works(user_id, page=i)
             elif keyword is not None:
-                data = self._api.search_works(word, mode='tag', page=i)
+                data = self._api.search_works(keyword, mode='tag', page=i)
 
             if data.status != 'success':
                 break
