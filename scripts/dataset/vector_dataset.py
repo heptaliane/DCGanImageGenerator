@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from queue import Empty
+from multiprocessing import Queue
+
 import numpy as np
 
 import torch
@@ -10,6 +13,7 @@ class VectorDataset(IterableDataset):
         self._length = length
         self._dim = dimension
         self._seed = seed
+        self._queue = Queue()
         self._reset_vector()
 
     def __len__(self):
@@ -19,18 +23,17 @@ class VectorDataset(IterableDataset):
         # If default seed (= None) is used, random vector will be generated
         np.random.seed(self._seed)
 
-        vec = [np.random.random((self._dim, 1, 1))
-               for _ in range(self._length)]
-        self._iter = iter(vec)
+        for _ in range(self._length):
+            self._queue.put(np.random.random((self._dim, 1, 1)))
 
     def __iter__(self):
         return self
 
     def __next__(self):
         try:
-            vector = next(self._iter)
-        except StopIteration:
+            vector = self._queue.get(timeout=0.1)
+        except Empty:
             self._reset_vector()
-            vector = next(self._iter)
+            vector = self._queue.get()
 
         return torch.tensor(vector, dtype=torch.float32)
