@@ -59,6 +59,23 @@ class LocalBestModelWriter():
         self._loss.append(loss)
 
 
+class PeriodicModelWriter():
+    def __init__(self, save_dir, interval, name=None):
+        self._name_fmt = 'model_epoch_%05d.pth' if name is None\
+            else '%s_model_epoch_%s.pth' % (name, '%05d')
+        self._dst_dir = save_dir
+        self.interval = interval
+        os.makedirs(save_dir, exist_ok=True)
+
+    def update(self, epoch, model):
+        if self.interval < 0:
+            # Never save model
+            return
+        if epoch % self.interval == 0:
+            dst_path = os.path.join(self._dst_dir, self._name_fmt)
+            torch.save(model.state_dict(), dst_path % epoch)
+
+
 class SnapshotWriter():
     def __init__(self, save_dir):
         self._dst_path = os.path.join(save_dir, 'snapshot_latest.pth')

@@ -5,7 +5,8 @@ import torch
 from torch.nn import BCELoss
 from torch.utils.tensorboard import SummaryWriter
 
-from .evaluator import LocalBestModelWriter, SnapshotWriter
+from .evaluator import LocalBestModelWriter, SnapshotWriter,\
+    PeriodicModelWriter
 from .common import LoopIterator
 
 # Logging
@@ -21,7 +22,8 @@ class DCGanTrainer():
     def __init__(self, save_dir, train_loader, test_loader,
                  generator, discriminator,
                  gen_optimizer=None, dis_optimizer=None,
-                 device=None, evaluator=None, snapshot_interval=10):
+                 device=None, evaluator=None,
+                 snapshot_interval=10, model_save_interval=-1):
         self.device = torch.device('cpu') if device is None else device
         self.train_iter = LoopIterator(train_loader)
         self.test_iter = LoopIterator(test_loader)
@@ -40,6 +42,10 @@ class DCGanTrainer():
         dis_name = 'best_discriminator'
         self.gen_model_writer = LocalBestModelWriter(save_dir, gen_name)
         self.dis_model_writer = LocalBestModelWriter(save_dir, dis_name)
+        self.periodic_gen_writer = PeriodicModelWriter(save_dir, 'G',
+                                                       model_save_interval)
+        self.periodic_dis_writer = PeriodicModelWriter(save_dir, 'D',
+                                                       model_save_interval)
         self.snapshot_writer = SnapshotWriter(save_dir)
         self.logger = SummaryWriter(save_dir)
 
@@ -163,10 +169,12 @@ class DCGanTrainer():
         if self.gen_optimizer is not None:
             self.gen_model_writer.update(avg_loss['gen_loss'],
                                          self.generator)
+            self.periodic_gen_writer(self.epoch, self.generator)
             self.evaluator(preds, self.epoch)
         if self.dis_optimizer is not None:
             self.dis_model_writer.update(avg_loss['dis_loss'],
                                          self.discriminator)
+            self.periodic_dis_writer(self.epoch, self.discriminator)
         if self.epoch % self.snapshot_interval == 0:
             self.snapshot_writer.update(self)
 
