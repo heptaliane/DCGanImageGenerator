@@ -154,8 +154,6 @@ class DCGanTrainer():
             preds.append(pred)
             for k, v in loss.items():
                 avg_loss[k] += v
-            if _ == 0:
-                print(data['generator'][:, 0, 0, 0])
 
         for k in avg_loss.keys():
             avg_loss[k] = avg_loss[k] / n_test
