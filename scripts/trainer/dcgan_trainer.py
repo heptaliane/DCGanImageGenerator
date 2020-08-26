@@ -42,10 +42,12 @@ class DCGanTrainer():
         dis_name = 'best_discriminator'
         self.gen_model_writer = LocalBestModelWriter(save_dir, gen_name)
         self.dis_model_writer = LocalBestModelWriter(save_dir, dis_name)
-        self.periodic_gen_writer = PeriodicModelWriter(save_dir, 'G',
-                                                       model_save_interval)
-        self.periodic_dis_writer = PeriodicModelWriter(save_dir, 'D',
-                                                       model_save_interval)
+        self.periodic_gen_writer = PeriodicModelWriter(save_dir,
+                                                       model_save_interval,
+                                                       'generator')
+        self.periodic_dis_writer = PeriodicModelWriter(save_dir,
+                                                       model_save_interval,
+                                                       'discriminator')
         self.snapshot_writer = SnapshotWriter(save_dir)
         self.logger = SummaryWriter(save_dir)
 
