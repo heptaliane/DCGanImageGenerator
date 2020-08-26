@@ -5,7 +5,7 @@ import torch
 from torch.nn import BCELoss
 from torch.utils.tensorboard import SummaryWriter
 
-from .evaluator import BestModelWriter, SnapshotWriter
+from .evaluator import LocalBestModelWriter, SnapshotWriter
 from .common import LoopIterator
 
 # Logging
@@ -38,8 +38,8 @@ class DCGanTrainer():
         # Setup writer
         gen_name = 'best_generator'
         dis_name = 'best_discriminator'
-        self.gen_model_writer = BestModelWriter(save_dir, gen_name)
-        self.dis_model_writer = BestModelWriter(save_dir, dis_name)
+        self.gen_model_writer = LocalBestModelWriter(save_dir, gen_name)
+        self.dis_model_writer = LocalBestModelWriter(save_dir, dis_name)
         self.snapshot_writer = SnapshotWriter(save_dir)
         self.logger = SummaryWriter(save_dir)
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from collections import deque
 
 import math
 
@@ -32,6 +33,30 @@ class BestModelWriter():
             self._loss = loss
             torch.save(model.state_dict(), self._dst_path)
             logger.info('Save best model (%s).', self._dst_path)
+
+
+class LocalBestModelWriter():
+    def __init__(self, save_dir, name=None, epochs=10):
+        name = 'model_best.pth' if name is None \
+                else '%s.pth' % name
+        self._dst_path = os.path.join(save_dir, name)
+        self._loss = deque([float('inf')], epochs)
+        os.makedirs(save_dir, exist_ok=True)
+
+    def load_state_dict(self, state):
+        self._loss = deque(state['loss'], state['epochs'])
+
+    def state_dict(self):
+        return {
+            'loss': list(self._loss),
+            'epochs': len(self._loss),
+        }
+
+    def update(self, loss, model):
+        if loss < min(self._loss):
+            torch.save(model.state_dict(), self._dst_path)
+            logger.info('Save local best model (%s).', self._dst_path)
+        self._loss.append(loss)
 
 
 class SnapshotWriter():
@@ -80,5 +105,5 @@ class ImageEvaluator():
         os.makedirs(dst_dir, exist_ok=True)
 
         for i, pred in enumerate(preds):
-            filename = 'test_result_idx_%03d.jpg' % i
+            filename = 'test_result_epoch_%03d_idx_%02d.jpg' % (epoch, i)
             self._create_thumbnail(pred, os.path.join(dst_dir, filename))
