@@ -105,24 +105,25 @@ class ImageEvaluator():
         os.makedirs(dst_dir, exist_ok=True)
 
         for i, pred in enumerate(preds):
-            filename = 'test_result_epoch_%03d_idx_%02d.jpg' % (epoch, i)
+            filename = 'test_result_idx_%02d.jpg' % i
             self._create_thumbnail(pred, os.path.join(dst_dir, filename))
 
 
 class DCGanEvaluator(ImageEvaluator):
+    def __init__(self, save_dir, interval=0):
+        super().__init__(save_dir, interval)
+        self.save_dir = os.path.join(self.save_dir, 'test_result')
+        os.makedirs(self.save_dir, exist_ok=True)
+
     def __call__(self, preds, epoch):
-        if self.interval <= 0:
-            dst_dir = os.path.join(self.save_dir, 'test_result_latest')
-        elif epoch % self.interval == 0:
-            dst_dir = os.path.join(self.save_dir,
-                                   'test_result_epoch%04d' % epoch)
-        else:
+        if self.interval > 0 and epoch % self.interval > 0:
             return
-        os.makedirs(dst_dir, exist_ok=True)
 
         batches = list()
         for pred in preds:
             for i in range(len(pred)):
                 batches.append(pred[i])
 
-        self._create_thumbnail(torch.stack(batches, dim=0))
+        filename = 'test_result_epoch_%04d.jpg' % epoch
+        dst_path = os.path.join(self.save_dir, filename)
+        self._create_thumbnail(torch.stack(batches, dim=0), dst_path)

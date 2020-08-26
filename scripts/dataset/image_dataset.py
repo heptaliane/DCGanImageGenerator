@@ -34,6 +34,10 @@ def create_image_dataset(src_dir, train=False,
         transform.append(transforms.RandomResizedCrop(img_size,
                                                       scale=(0.7, 1.0),
                                                       ratio=(1.0, 1.0)))
+        transform.append(transforms.ColorJitter(brightness=0.05,
+                                                contrast=0.05,
+                                                saturation=0.05,
+                                                hue=0.05))
     transform.append(transforms.ToTensor())
 
     transform = transforms.Compose(transform)
