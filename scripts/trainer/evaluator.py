@@ -81,7 +81,7 @@ class ImageEvaluator():
 
     def _create_thumbnail(self, batches, dst_path):
         n, c, h, w = batches.size()
-        n_rows = math.ceil(math.sqrt(n))
+        n_rows = math.floor(math.sqrt(n))
         n_cols = math.ceil(n / n_rows)
         thumb = np.zeros((h * n_rows, w * n_cols, c), dtype=np.uint8)
 
