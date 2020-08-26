@@ -11,7 +11,7 @@ class VectorDataset(Dataset):
         self._dim = dimension
         self._seed = seed
         np.random.seed(self._seed)
-        self.vectors = [np.random.random((dimension, 1, 1))
+        self.vectors = [np.random.randn(dimension, 1, 1)
                         for _ in range(length)]
 
     def __len__(self):
