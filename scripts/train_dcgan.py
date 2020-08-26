@@ -56,7 +56,7 @@ def setup_dataset(config, label):
                                 dimension=config['model']['in_ch'],
                                 seed=config['seed'])
 
-    train_loader = DataLoader(train_dataset, **config['loader'])
+    train_loader = DataLoader(train_dataset, **config['loader'], shuffle=True)
     test_loader = DataLoader(test_dataset, **config['loader'])
 
     return dict(train_loader=train_loader, test_loader=test_loader)
@@ -122,7 +122,7 @@ def main(argv):
     write_json(os.path.join(dst_dir, 'config.json'), config)
 
     trainer = setup_trainer(config, dst_dir, args.gpu, datasets, models)
-    trainer.run(config['iteraion_per_epoch'], args.max_epoch)
+    trainer.run(config['iteration_per_epoch'], args.max_epoch)
 
 
 if __name__ == '__main__':

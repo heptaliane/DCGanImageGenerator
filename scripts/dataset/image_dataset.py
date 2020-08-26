@@ -1,12 +1,30 @@
 # -*- codoing: utf-8 -*-
+from torch.utils.data import Dataset
 from torchvision import transforms
 from PIL import Image
 
 from .common import DatasetDirectory
-from .loop_dataset import LoopDataset
 
 
-def create_image_dataset(src_dir, train=False, img_size=(200, 200), ext='.jpg'):
+class ImageDataset(Dataset):
+    def __init__(self, directory, transform):
+        self._directory = directory
+        self._transform = transform
+        self._names = directory.names
+
+    def __len__(self):
+        return len(self._names)
+
+    def __getitem__(self, idx):
+        name = self._names[idx]
+        path = self._directory.name_to_path(name)
+        img = Image.open(path)
+
+        return self._transform(img)
+
+
+def create_image_dataset(src_dir, train=False,
+                         img_size=(200, 200), ext='.jpg'):
     directory = DatasetDirectory(src_dir, ext)
 
     transform = [transforms.Resize(img_size)]
@@ -20,4 +38,4 @@ def create_image_dataset(src_dir, train=False, img_size=(200, 200), ext='.jpg'):
 
     transform = transforms.Compose(transform)
 
-    return LoopDataset(directory, Image.open, transform, train)
+    return ImageDataset(directory, transform)

@@ -6,6 +6,7 @@ from torch.nn import BCELoss
 from torch.utils.tensorboard import SummaryWriter
 
 from .evaluator import BestModelWriter, SnapshotWriter
+from .common import LoopIterator
 
 # Logging
 from logging import getLogger, NullHandler
@@ -22,8 +23,8 @@ class DCGanTrainer():
                  gen_optimizer=None, dis_optimizer=None,
                  device=None, evaluator=None, snapshot_interval=10):
         self.device = torch.device('cpu') if device is None else device
-        self.train_iter = iter(train_loader)
-        self.test_iter = iter(test_loader)
+        self.train_iter = LoopIterator(train_loader)
+        self.test_iter = LoopIterator(test_loader)
         self.generator = generator.to(self.device)
         self.discriminator = discriminator.to(self.device)
         self.gen_optimizer = gen_optimizer
@@ -146,16 +147,18 @@ class DCGanTrainer():
 
         preds = list()
         avg_loss = {k: 0 for k in self._loss_keys}
-        n_test = len(self.test_iter._dataset)
-        for _ in tqdm(range(n_test // self.batch_size)):
-            data = next(self.train_iter)
+        n_test = len(self.test_iter)
+        for _ in tqdm(range(n_test)):
+            data = next(self.test_iter)
             loss, pred = self._forward(data, train=False)
             preds.append(pred)
             for k, v in loss.items():
                 avg_loss[k] += v
+            if _ == 0:
+                print(data['generator'][:, 0, 0, 0])
 
         for k in avg_loss.keys():
-            avg_loss[k] = avg_loss[k] / n_test * self.batch_size
+            avg_loss[k] = avg_loss[k] / n_test
             self.logger.add_scalar('test_%s' % k, avg_loss[k], self.epoch)
             logger.info('test_%s: %f', k, avg_loss[k])
 

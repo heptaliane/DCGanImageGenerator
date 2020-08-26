@@ -39,6 +39,6 @@
     "image": 1,
     "snapshot": 10
   },
-  "iteraion_per_epoch": 1000,
+  "iteration_per_epoch": 1000,
   "seed": 1234
 }
