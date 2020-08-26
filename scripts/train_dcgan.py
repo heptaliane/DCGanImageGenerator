@@ -101,9 +101,11 @@ def setup_trainer(config, save_dir, device, datasets, models):
     evaluator = DCGanEvaluator(save_dir,
                                config['evaluator_interval']['image'])
     snapshot_interval = config['evaluator_interval']['snapshot']
+    model_save_interval = config['evaluator_interval']['model']
     trainer = DCGanTrainer(save_dir, **datasets, **models, device=device,
                            evaluator=evaluator,
-                           snapshot_interval=snapshot_interval)
+                           snapshot_interval=snapshot_interval,
+                           model_save_interval=model_save_interval)
 
     return trainer
 

@@ -37,7 +37,8 @@
   },
   "evaluator_interval": {
     "image": 1,
-    "snapshot": 10
+    "snapshot": 10,
+    "model": -1
   },
   "iteration_per_epoch": 1000,
   "seed": 1234
