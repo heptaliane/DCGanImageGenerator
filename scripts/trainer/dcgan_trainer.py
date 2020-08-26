@@ -169,12 +169,12 @@ class DCGanTrainer():
         if self.gen_optimizer is not None:
             self.gen_model_writer.update(avg_loss['gen_loss'],
                                          self.generator)
-            self.periodic_gen_writer(self.epoch, self.generator)
+            self.periodic_gen_writer.update(self.epoch, self.generator)
             self.evaluator(preds, self.epoch)
         if self.dis_optimizer is not None:
             self.dis_model_writer.update(avg_loss['dis_loss'],
                                          self.discriminator)
-            self.periodic_dis_writer(self.epoch, self.discriminator)
+            self.periodic_dis_writer.update(self.epoch, self.discriminator)
         if self.epoch % self.snapshot_interval == 0:
             self.snapshot_writer.update(self)
 
