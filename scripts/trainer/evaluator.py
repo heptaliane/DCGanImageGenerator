@@ -74,6 +74,7 @@ class PeriodicModelWriter():
         if epoch % self.interval == 0:
             dst_path = os.path.join(self._dst_dir, self._name_fmt)
             torch.save(model.state_dict(), dst_path % epoch)
+            logger.info('Save model (%s)', dst_path)
 
 
 class SnapshotWriter():
