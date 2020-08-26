@@ -88,7 +88,7 @@ class ImageEvaluator():
         for i in range(n):
             pred = self._normalize_input(batches[i])
             img = np.asarray(self.tensor_to_image(pred))
-            nx, ny = i % n_cols, math.floor(i / n_rows)
+            nx, ny = i % n_cols, math.floor(i / n_cols)
             thumb[ny * h: (ny + 1) * h, nx * w: (nx + 1) * w, :] = img
 
         thumb = Image.fromarray(thumb)
@@ -121,8 +121,7 @@ class DCGanEvaluator(ImageEvaluator):
 
         batches = list()
         for pred in preds:
-            for i in range(len(pred)):
-                batches.append(pred[i])
+            batches.extend(torch.chunk(pred, dim=0))
 
         filename = 'test_result_epoch_%04d.jpg' % epoch
         dst_path = os.path.join(self.save_dir, filename)
