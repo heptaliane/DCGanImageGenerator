@@ -121,8 +121,8 @@ class DCGanEvaluator(ImageEvaluator):
 
         batches = list()
         for pred in preds:
-            batches.extend(torch.chunk(pred, dim=0))
+            batches.extend(torch.chunk(pred, chunks=len(pred)))
 
         filename = 'test_result_epoch_%04d.jpg' % epoch
         dst_path = os.path.join(self.save_dir, filename)
-        self._create_thumbnail(torch.stack(batches, dim=0), dst_path)
+        self._create_thumbnail(torch.cat(batches, dim=0), dst_path)
