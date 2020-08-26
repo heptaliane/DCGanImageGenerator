@@ -12,7 +12,7 @@ from config import load_config
 from common import write_json
 from dataset import DCGanDataset
 from model import DCGanGenerator, DCGanDiscriminator, load_pretrained_model
-from trainer import DCGanTrainer, ImageEvaluator
+from trainer import DCGanTrainer, DCGanEvaluator
 
 
 # Logging
@@ -98,7 +98,7 @@ def setup_model(config):
 
 
 def setup_trainer(config, save_dir, device, datasets, models):
-    evaluator = ImageEvaluator(save_dir,
+    evaluator = DCGanEvaluator(save_dir,
                                config['evaluator_interval']['image'])
     snapshot_interval = config['evaluator_interval']['snapshot']
     trainer = DCGanTrainer(save_dir, **datasets, **models, device=device,
