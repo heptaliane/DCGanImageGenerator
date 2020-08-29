@@ -66,13 +66,11 @@ class AnimeFaceExtractor():
         self._rects = dict() if rects is None else rects
 
     def _save_extract_face(self, extracted, filename):
-        # extracted = cv2.resize(extracted, self._image_size)
         dstpath = os.path.join(self.dst_dir, filename)
         cv2.imwrite(dstpath, extracted)
 
     def __call__(self, src_path):
         basename = os.path.splitext(os.path.basename(src_path))[0]
-        filename = '%s_%s.jpg' % (basename, '%02d')
         if basename in self._rects:
             logger.info('"%s" exists... Skip', basename)
             return
@@ -81,10 +79,16 @@ class AnimeFaceExtractor():
         if img is None:
             logger.error('Failed to load image "%s"', src_path)
             return
+
+        self.extract_face(img, basename)
+
+    def extract_face(self, img, basename):
+        filename = '%s_%s.jpg' % (basename, '%02d')
         rects = self._detector(img)
         self._rects[basename] = list()
 
-        logger.info('Extract face from "%s"', basename)
+        if len(rects) > 0:
+            logger.info('Extract face from "%s"', basename)
         src_h, src_w = img.shape[:2]
         for i, (x, y, w, h) in enumerate(rects):
             cnt_x, cnt_y = x + w // 2, y + h // 2
