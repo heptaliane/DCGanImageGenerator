@@ -6,7 +6,7 @@ from torch.nn import BCELoss
 from torch.utils.tensorboard import SummaryWriter
 
 from .evaluator import LocalBestModelWriter, SnapshotWriter,\
-    PeriodicModelWriter
+    BestModelWriter, PeriodicModelWriter
 from .common import LoopIterator
 
 # Logging
@@ -40,8 +40,14 @@ class DCGanTrainer():
         # Setup writer
         gen_name = 'best_generator'
         dis_name = 'best_discriminator'
-        self.gen_model_writer = LocalBestModelWriter(save_dir, gen_name)
-        self.dis_model_writer = LocalBestModelWriter(save_dir, dis_name)
+        if dis_optimizer is None:
+            self.gen_model_writer = BestModelWriter(save_dir, gen_name)
+        else:
+            self.gen_model_writer = LocalBestModelWriter(save_dir, gen_name)
+        if gen_optimizer is None:
+            self.dis_model_writer = BestModelWriter(save_dir, dis_name)
+        else: 
+            self.dis_model_writer = LocalBestModelWriter(save_dir, dis_name)
         self.periodic_gen_writer = PeriodicModelWriter(save_dir,
                                                        model_save_interval,
                                                        'generator')
